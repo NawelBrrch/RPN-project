@@ -1,9 +1,10 @@
 import React from "react";
+import Rpn from "./../RPN";
 
 export interface Props {}
 
 const Component: React.FunctionComponent<Props> = () => {
-  return <div>This is your app!</div>;
+  return <Rpn />;
 };
 
 export default Component;
