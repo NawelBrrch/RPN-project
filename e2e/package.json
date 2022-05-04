@@ -1,0 +1,17 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "cypress open",
+    "format": "prettier --write '**/*.{ts,tsx}'"
+  },
+  "author": "Mathieu Eveillard",
+  "license": "MIT",
+  "dependencies": {
+    "cypress": "^9.3.1",
+    "prettier": "^2.5.1",
+    "typescript": "^4.5.5"
+  }
+}
