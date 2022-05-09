@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Operators } from "../types";
 import { RootState } from "./store";
 
 interface CounterState {
@@ -19,37 +20,26 @@ export const rpnSlice = createSlice({
     deleteAll: (state) => {
       state.numbers = [];
     },
-    add: (state) => {
+    calculateNumbers: (state, action: PayloadAction<Operators>) => {
       if (state.numbers.length >= 2) {
-        const numbers = state.numbers;
-        const newNumber = state.numbers[0] + state.numbers[1];
-        numbers.splice(0, 2);
-        numbers.unshift(newNumber);
-        state.numbers = numbers;
-      }
-    },
-    minus: (state) => {
-      if (state.numbers.length >= 2) {
-        const numbers = state.numbers;
-        const newNumber = state.numbers[0] - state.numbers[1];
-        numbers.splice(0, 2);
-        numbers.unshift(newNumber);
-        state.numbers = numbers;
-      }
-    },
-    divide: (state) => {
-      if (state.numbers.length >= 2) {
-        const numbers = state.numbers;
-        const newNumber = state.numbers[0] / state.numbers[1];
-        numbers.splice(0, 2);
-        numbers.unshift(newNumber);
-        state.numbers = numbers;
-      }
-    },
-    multiply: (state) => {
-      if (state.numbers.length >= 2) {
-        const numbers = state.numbers;
-        const newNumber = state.numbers[0] * state.numbers[1];
+        const { numbers } = state;
+        let newNumber: number = 0;
+        switch (action.payload) {
+          case "+":
+            newNumber = numbers[0] + numbers[1];
+            break;
+          case "-":
+            newNumber = numbers[0] - numbers[1];
+            break;
+          case "*":
+            newNumber = numbers[0] * numbers[1];
+            break;
+          case "/":
+            newNumber = numbers[0] / numbers[1];
+            break;
+          default:
+            break;
+        }
         numbers.splice(0, 2);
         numbers.unshift(newNumber);
         state.numbers = numbers;
@@ -58,16 +48,7 @@ export const rpnSlice = createSlice({
   },
 });
 
-export const { addNumber, deleteAll, add, minus, divide, multiply } =
-  rpnSlice.actions;
-
-/* export const incrementByAmountAsync =
-  (amount: number): AppThunk =>
-  (dispatch) => {
-    setTimeout(() => {
-      dispatch(incrementByAmount(amount));
-    }, 1000);
-  }; */
+export const { addNumber, deleteAll, calculateNumbers } = rpnSlice.actions;
 
 export const selectNumbers = (state: RootState) => state.rpn.numbers;
 

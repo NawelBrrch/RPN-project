@@ -1,89 +1,257 @@
+import { uniqueId } from "lodash";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  add,
+  calculateNumbers,
   addNumber,
   deleteAll,
-  divide,
-  minus,
-  multiply,
   selectNumbers,
 } from "../../storage/rpnSlice";
-import NumberButtons from "./NumberButtons";
+import { Operators } from "../../types";
 
 export interface Props {}
 
 const Component: React.FunctionComponent<Props> = () => {
-  const count = useSelector(selectNumbers);
+  const memorisedNumbers = useSelector(selectNumbers);
   const dispatch = useDispatch();
-  const [calculatorLastNumber, setCalculatorLastNumber] = useState<number[]>(
-    []
-  );
-
-  console.log(count);
+  const [currentNumber, setCurrentNumber] = useState<
+    (number | "NEGATE" | ".")[]
+  >([]);
 
   const handleNumberClick = (number: number) => {
-    setCalculatorLastNumber([...calculatorLastNumber, number]);
+    setCurrentNumber([...currentNumber, number]);
   };
 
-  const handleEnterClick = () => {
-    if (calculatorLastNumber[0] === -0) {
-      calculatorLastNumber.shift();
-      dispatch(addNumber(Number(-calculatorLastNumber.join(""))));
-    } else dispatch(addNumber(Number(calculatorLastNumber.join(""))));
-    setCalculatorLastNumber([]);
+  const handleAddNumber = () => {
+    if (currentNumber[0] === "NEGATE") {
+      currentNumber.shift();
+      dispatch(addNumber(Number(-currentNumber.join(""))));
+    } else if (currentNumber.length > 0) {
+      dispatch(addNumber(Number(currentNumber.join(""))));
+    }
+    setCurrentNumber([]);
   };
 
   const handleDeleteLastNumber = () => {
-    const newNumber = calculatorLastNumber;
-    newNumber.pop();
-    setCalculatorLastNumber(newNumber);
+    currentNumber.pop();
+    setCurrentNumber([...currentNumber]);
   };
 
   const handleDeleteAll = () => {
     dispatch(deleteAll());
+    setCurrentNumber([]);
   };
 
-  const handleCalculate = (operator: string) => {
-    if (operator === "+") dispatch(add());
-    if (operator === "-") dispatch(minus());
-    if (operator === "/") dispatch(divide());
-    if (operator === "x") dispatch(multiply());
+  const handleCalculate = (operator: Operators) => {
+    if (currentNumber.length > 0 && memorisedNumbers.length >= 1)
+      handleAddNumber();
+    dispatch(calculateNumbers(operator));
   };
 
   const handleNegativeNumber = () => {
-    const newNumber = calculatorLastNumber;
-    if (calculatorLastNumber[0] === -0) {
-      newNumber.shift();
-      setCalculatorLastNumber(newNumber);
+    if (currentNumber[0] === "NEGATE") {
+      currentNumber.shift();
+      setCurrentNumber([...currentNumber]);
     } else {
-      newNumber.unshift(-0);
-      setCalculatorLastNumber(newNumber);
+      currentNumber.unshift("NEGATE");
+      setCurrentNumber([...currentNumber]);
     }
   };
 
-  console.log(calculatorLastNumber);
-
-  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+  const displayedNumber = () => {
+    const number = [...currentNumber];
+    if (number[0] === "NEGATE") {
+      number.shift();
+      return `${number.join("")} NEGATE`;
+    } else return number.join("");
+  };
 
   return (
-    <div>
-      <h1 className="rpn-text">Reversed Polish Notation</h1>
-      {numbers.map((number) => (
-        <NumberButtons
-          key={number}
-          number={number}
-          onClick={handleNumberClick}
-        />
-      ))}
-      <button onClick={handleNegativeNumber}>negatif</button>
-      <button onClick={handleEnterClick}>enter</button>
-      <button onClick={handleDeleteLastNumber}>AC</button>
-      <button onClick={handleDeleteAll}>delete everything</button>
-      <button onClick={() => handleCalculate("+")}>+</button>
-      <button onClick={() => handleCalculate("-")}>-</button>
-      <button onClick={() => handleCalculate("/")}>/</button>
-      <button onClick={() => handleCalculate("x")}>x</button>
+    <div style={{ width: 500, padding: 20 }}>
+      <div
+        className="box content"
+        style={{
+          height: 300,
+          overflow: "scroll",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "end",
+          justifyContent: "flex-end",
+        }}
+      >
+        {memorisedNumbers.map((number) => (
+          <p key={uniqueId()}>{number >= 0 ? number : `${-number} NEGATE`}</p>
+        ))}
+        <div className="block">
+          <h1>{displayedNumber()}</h1>
+        </div>
+      </div>
+      <div className="columns">
+        <div className="column">
+          <button
+            className="button is-fullwidth"
+            onClick={handleDeleteLastNumber}
+          >
+            AC
+          </button>
+        </div>
+        <div className="column">
+          <button className="button is-fullwidth" onClick={handleDeleteAll}>
+            Delete All
+          </button>
+        </div>
+        <div className="column">
+          <button
+            className="button is-fullwidth is-warning"
+            onClick={handleAddNumber}
+          >
+            Enter
+          </button>
+        </div>
+      </div>
+
+      <div className="columns">
+        <div className="column">
+          <button
+            className="button is-fullwidth is-primary"
+            onClick={() => handleNumberClick(1)}
+          >
+            1
+          </button>
+        </div>
+        <div className="column">
+          <button
+            className="button is-fullwidth is-primary"
+            onClick={() => handleNumberClick(2)}
+          >
+            2
+          </button>
+        </div>
+        <div className="column">
+          <button
+            className="button is-fullwidth is-primary"
+            onClick={() => handleNumberClick(3)}
+          >
+            3
+          </button>
+        </div>
+        <div className="column">
+          <button
+            className="button is-fullwidth"
+            onClick={() => handleCalculate("+")}
+          >
+            +
+          </button>
+        </div>
+      </div>
+
+      <div className="columns">
+        <div className="column">
+          <button
+            className="button is-fullwidth is-primary"
+            onClick={() => handleNumberClick(4)}
+          >
+            4
+          </button>
+        </div>
+        <div className="column">
+          <button
+            className="button is-fullwidth is-primary"
+            onClick={() => handleNumberClick(5)}
+          >
+            5
+          </button>
+        </div>
+        <div className="column">
+          <button
+            className="button is-fullwidth is-primary"
+            onClick={() => handleNumberClick(6)}
+          >
+            6
+          </button>
+        </div>
+        <div className="column">
+          <button
+            className="button is-fullwidth"
+            onClick={() => handleCalculate("-")}
+          >
+            -
+          </button>
+        </div>
+      </div>
+
+      <div className="columns">
+        <div className="column">
+          <button
+            className="button is-fullwidth is-primary"
+            onClick={() => handleNumberClick(7)}
+          >
+            7
+          </button>
+        </div>
+        <div className="column">
+          <button
+            className="button is-fullwidth is-primary"
+            onClick={() => handleNumberClick(8)}
+          >
+            8
+          </button>
+        </div>
+        <div className="column">
+          <button
+            className="button is-fullwidth is-primary"
+            onClick={() => handleNumberClick(9)}
+          >
+            9
+          </button>
+        </div>
+        <div className="column">
+          <button
+            className="button is-fullwidth"
+            onClick={() => handleCalculate("*")}
+          >
+            x
+          </button>
+        </div>
+      </div>
+
+      <div className="columns">
+        <div className="column">
+          <button
+            className="button is-fullwidth is-primary"
+            onClick={() => {
+              if (!currentNumber.find((number) => number === "."))
+                setCurrentNumber([...currentNumber, "."]);
+            }}
+          >
+            .
+          </button>
+        </div>
+        <div className="column">
+          <button
+            className="button is-fullwidth is-primary"
+            onClick={() => handleNumberClick(0)}
+          >
+            0
+          </button>
+        </div>
+        <div className="column">
+          <button
+            className="button is-fullwidth is-primary"
+            onClick={handleNegativeNumber}
+          >
+            NEGATIVE
+          </button>
+        </div>
+        <div className="column">
+          <button
+            className="button is-fullwidth"
+            onClick={() => handleCalculate("/")}
+          >
+            /
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

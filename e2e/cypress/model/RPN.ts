@@ -5,6 +5,6 @@ import { RPN_TEXT } from "./selectors";
 
 export class Rpn {
   public readText(): void {
-    cy.get(e2eSelector(RPN_TEXT)).should("have.text", "Hey");
+    cy.get(".button").should("have.text", "1");
   }
 }
